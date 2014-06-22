@@ -1,0 +1,79 @@
+NAME
+    Complete::Module - Complete Perl module names
+
+VERSION
+    This document describes version 0.01 of Complete::Module (from Perl
+    distribution Complete-Module), released on 2014-06-22.
+
+SYNOPSIS
+     use Complete::Module qw(complete_module);
+     my $res = complete_module(word => 'Te');
+     # -> ['Template', 'Template::', 'Test', 'Test::', 'Text::']
+
+FUNCTIONS
+  complete_module(%args) -> any
+    Complete Perl module names.
+
+    For each directory in @INC (coderefs are ignored), find Perl modules and
+    module prefixes which have "word" as prefix. So for example, given "Te"
+    as "word", will return e.g. "[Template, Template::, Term::, Test,
+    Test::, Text::]". Given "Text::" will return "[Text::ASCIITable,
+    Text::Abbrev, ...]" and so on.
+
+    This function has a bit of overlapping functionality with
+    "Module::List", but this function is geared towards shell tab
+    completion. Compared to "Module::List", here are some differences: 1)
+    list modules where prefix is incomplete; 2) interface slightly
+    different; 3) (currently) doesn't do recursing.
+
+    Arguments ('*' denotes required arguments):
+
+    *   find_pm => *bool* (default: 1)
+
+        Whether to find .pm files.
+
+    *   find_pmc => *bool* (default: 1)
+
+        Whether to find .pmc files.
+
+    *   find_pod => *bool* (default: 1)
+
+        Whether to find .pod files.
+
+    *   find_prefix => *bool* (default: 1)
+
+        Whether to find module prefixes.
+
+    *   separator => *str* (default: "::")
+
+        Instead of the default "::", output separator as this character.
+        Colon is problematic e.g. in bash when doing tab completion.
+
+    *   word* => *str*
+
+    Return value:
+
+HOMEPAGE
+    Please visit the project's homepage at
+    <https://metacpan.org/release/Complete-Module>.
+
+SOURCE
+    Source repository is at
+    <https://github.com/sharyanto/perl-Complete-Module>.
+
+BUGS
+    Please report any bugs or feature requests on the bugtracker website
+    <https://rt.cpan.org/Public/Dist/Display.html?Name=Complete-Module>
+
+    When submitting a bug or request, please include a test-file or a patch
+    to an existing test-file that illustrates the bug or desired feature.
+
+AUTHOR
+    Steven Haryanto <stevenharyanto@gmail.com>
+
+COPYRIGHT AND LICENSE
+    This software is copyright (c) 2014 by Steven Haryanto.
+
+    This is free software; you can redistribute it and/or modify it under
+    the same terms as the Perl 5 programming language system itself.
+
