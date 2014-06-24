@@ -11,8 +11,8 @@ require Exporter;
 our @ISA       = qw(Exporter);
 our @EXPORT_OK = qw(complete_module);
 
-our $VERSION = '0.01'; # VERSION
-our $DATE = '2014-06-22'; # DATE
+our $VERSION = '0.02'; # VERSION
+our $DATE = '2014-06-24'; # DATE
 
 $SPEC{complete_module} = {
     v => 1.1,
@@ -82,9 +82,9 @@ sub complete_module {
     #my $ci   = $args{ci};
     my $sep  = $args{separator} // '::';
 
-    my $find_pm      = $args{find_pm}  // 1;
-    my $find_pmc     = $args{find_pm};
-    my $find_pod     = $args{find_pm};
+    my $find_pm      = $args{find_pm}     // 1;
+    my $find_pmc     = $args{find_pmc}    // 1;
+    my $find_pod     = $args{find_pod}    // 1;
     my $find_prefix  = $args{find_prefix} // 1;
 
     my $sep_re = qr!(?:::|/|\Q$sep\E)!;
@@ -123,11 +123,11 @@ sub complete_module {
                 $f = $1;
                 push @res, $resprefix . $f if $f =~ $word_re;
             }
-            if ($find_pmc && /(.+)\.pmc\z/) {
+            if ($find_pmc && $e =~ /(.+)\.pmc\z/) {
                 $f = $1;
                 push @res, $resprefix . $f if $f =~ $word_re;
             }
-            if ($find_pod && /(.+)\.pod\z/) {
+            if ($find_pod && $e =~ /(.+)\.pod\z/) {
                 $f = $1;
                 push @res, $resprefix . $f if $f =~ $word_re;
             }
@@ -152,7 +152,7 @@ Complete::Module - Complete Perl module names
 
 =head1 VERSION
 
-This document describes version 0.01 of Complete::Module (from Perl distribution Complete-Module), released on 2014-06-22.
+This document describes version 0.02 of Complete::Module (from Perl distribution Complete-Module), released on 2014-06-24.
 
 =head1 SYNOPSIS
 

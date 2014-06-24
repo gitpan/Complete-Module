@@ -1,5 +1,10 @@
 Revision history for Complete-Module
 
+0.02    2014-06-24 (SHARYANTO)
+
+        - Fix a couple of bugs, add more tests.
+
+
 0.01    2014-06-22 (SHARYANTO)
 
         - First release.
