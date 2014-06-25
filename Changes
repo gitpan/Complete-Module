@@ -1,5 +1,10 @@
 Revision history for Complete-Module
 
+0.03    2014-06-25 (SHARYANTO)
+
+        - Add option: ci (case-insensitive).
+
+
 0.02    2014-06-24 (SHARYANTO)
 
         - Fix a couple of bugs, add more tests.

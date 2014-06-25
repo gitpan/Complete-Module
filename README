@@ -2,8 +2,8 @@ NAME
     Complete::Module - Complete Perl module names
 
 VERSION
-    This document describes version 0.02 of Complete::Module (from Perl
-    distribution Complete-Module), released on 2014-06-24.
+    This document describes version 0.03 of Complete::Module (from Perl
+    distribution Complete-Module), released on 2014-06-25.
 
 SYNOPSIS
      use Complete::Module qw(complete_module);
@@ -27,6 +27,10 @@ FUNCTIONS
     different; 3) (currently) doesn't do recursing.
 
     Arguments ('*' denotes required arguments):
+
+    *   ci => *bool*
+
+        Whether to do case-insensitive search.
 
     *   find_pm => *bool* (default: 1)
 
