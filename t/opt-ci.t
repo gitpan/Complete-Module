@@ -8,20 +8,21 @@ use Complete::Module qw(complete_module);
 use File::chdir;
 use File::Slurp::Tiny qw(write_file);
 use File::Temp qw(tempdir);
+use Filesys::Cap qw(fs_is_cs);
 use Test::More 0.98;
 use mro; # force use, before we empty @INC
 use Data::Dumper; # force use, before we empty @INC, for explain()
 
 my $dir = tempdir(CLEANUP => 0);
+unless (fs_is_cs($dir)) {
+    plan skip_all => 'Filesystem is case-insensitive';
+    goto DONE_TESTING;
+}
+
 {
     local $CWD = $dir;
     mkdir("Foo");
     mkdir("foo");
-    my @f = <*>;
-    if (@f < 2) {
-        plan skip_all => 'Filesystem is case-insensitive';
-        goto DONE_TESTING;
-    }
     write_file("Foo/bar.pm", "");
     write_file("Foo/Bar.pm", "");
     mkdir("Foo/Bar");

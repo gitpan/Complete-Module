@@ -1,5 +1,8 @@
 package Complete::Module;
 
+our $DATE = '2014-08-16'; # DATE
+our $VERSION = '0.04'; # VERSION
+
 use 5.010001;
 use strict;
 use warnings;
@@ -11,9 +14,6 @@ our %SPEC;
 require Exporter;
 our @ISA       = qw(Exporter);
 our @EXPORT_OK = qw(complete_module);
-
-our $VERSION = '0.03'; # VERSION
-our $DATE = '2014-06-25'; # DATE
 
 our @_built_prefix;
 
@@ -74,10 +74,24 @@ _
             schema  => 'bool*',
             default => 1,
         },
+        ns_prefix => {
+            summary => 'Namespace prefix',
+            schema  => 'str*',
+            description => <<'_',
+
+This is useful if you want to complete module under a specific namespace
+(instead of the root). For example, if you set `ns_prefix` to
+`Dist::Zilla::Plugin` (or `Dist::Zilla::Plugin::`) and word is `F`, you can get
+`['FakeRelease', 'FileFinder::', 'FinderCode']` (those are modules under the
+`Dist::Zilla::Plugin::` namespace).
+
+_
+        },
     },
     result_naked => 1,
 };
 sub complete_module {
+    #say "D:complete_module called ".join(", ", @_);
     my %args = @_;
 
     my $word = $args{word} // '';
@@ -90,6 +104,13 @@ sub complete_module {
     my $find_prefix  = $args{find_prefix} // 1;
 
     my $sep_re = qr!(?:::|/|\Q$sep\E)!;
+
+    my $ns_prefix = $args{ns_prefix} // '';
+    if (length $ns_prefix) {
+        $ns_prefix =~ s!$sep_re\z!!;
+        $ns_prefix =~ s!$sep_re!$sep!g;
+        $word = "$ns_prefix$sep$word";
+    }
 
     my ($prefix0, $pm);
     if ($word =~ m!(.+)$sep_re(.*)!) {
@@ -163,7 +184,7 @@ sub complete_module {
             my $is_dir = (-d "$dir/$e"); # stat once
             #say "D:  <$e> is dir" if $is_dir;
             if ($find_prefix && $is_dir) {
-                #say "D:  <$e> $word_re";
+                #say "D:  <$e> $word_re? ".($e =~ $word_re ? 1:0);
                 push @res, $resprefix . $e . $sep if $e =~ $word_re;
             }
             my $f;
@@ -183,6 +204,13 @@ sub complete_module {
 
     }
 
+    if (length $ns_prefix) {
+        for (@res) {
+            substr($_, 0, length($ns_prefix)+length($sep)) = '';
+        }
+    }
+
+    #say "D:res=".join(", ", @res);
     [sort(uniq(@res))];
 }
 
@@ -201,7 +229,7 @@ Complete::Module - Complete Perl module names
 
 =head1 VERSION
 
-This document describes version 0.03 of Complete::Module (from Perl distribution Complete-Module), released on 2014-06-25.
+This document describes version 0.04 of Complete::Module (from Perl distribution Complete-Module), released on 2014-08-16.
 
 =head1 SYNOPSIS
 
@@ -251,6 +279,16 @@ Whether to find .pod files.
 
 Whether to find module prefixes.
 
+=item * B<ns_prefix> => I<str>
+
+Namespace prefix.
+
+This is useful if you want to complete module under a specific namespace
+(instead of the root). For example, if you set C<ns_prefix> to
+C<Dist::Zilla::Plugin> (or C<Dist::Zilla::Plugin::>) and word is C<F>, you can get
+C<['FakeRelease', 'FileFinder::', 'FinderCode']> (those are modules under the
+C<Dist::Zilla::Plugin::> namespace).
+
 =item * B<separator> => I<str> (default: "::")
 
 Instead of the default C<::>, output separator as this character. Colon is
@@ -261,6 +299,8 @@ problematic e.g. in bash when doing tab completion.
 =back
 
 Return value:
+
+ (any)
 
 =head1 HOMEPAGE
 

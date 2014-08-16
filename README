@@ -2,8 +2,8 @@ NAME
     Complete::Module - Complete Perl module names
 
 VERSION
-    This document describes version 0.03 of Complete::Module (from Perl
-    distribution Complete-Module), released on 2014-06-25.
+    This document describes version 0.04 of Complete::Module (from Perl
+    distribution Complete-Module), released on 2014-08-16.
 
 SYNOPSIS
      use Complete::Module qw(complete_module);
@@ -48,6 +48,16 @@ FUNCTIONS
 
         Whether to find module prefixes.
 
+    *   ns_prefix => *str*
+
+        Namespace prefix.
+
+        This is useful if you want to complete module under a specific
+        namespace (instead of the root). For example, if you set "ns_prefix"
+        to "Dist::Zilla::Plugin" (or "Dist::Zilla::Plugin::") and word is
+        "F", you can get "['FakeRelease', 'FileFinder::', 'FinderCode']"
+        (those are modules under the "Dist::Zilla::Plugin::" namespace).
+
     *   separator => *str* (default: "::")
 
         Instead of the default "::", output separator as this character.
@@ -56,6 +66,8 @@ FUNCTIONS
     *   word* => *str*
 
     Return value:
+
+     (any)
 
 HOMEPAGE
     Please visit the project's homepage at

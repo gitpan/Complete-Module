@@ -1,15 +1,20 @@
 Revision history for Complete-Module
 
-0.03    2014-06-25 (SHARYANTO)
+0.04     2014-08-16 (SHARYANTO) - Happy 19th CPAN Day!
 
-        - Add option: ci (case-insensitive).
-
-
-0.02    2014-06-24 (SHARYANTO)
-
-        - Fix a couple of bugs, add more tests.
+         - Add option: ns_prefix.
 
 
-0.01    2014-06-22 (SHARYANTO)
+0.03     2014-06-25 (SHARYANTO)
 
-        - First release.
+         - Add option: ci (case-insensitive).
+
+
+0.02     2014-06-24 (SHARYANTO)
+
+         - Fix a couple of bugs, add more tests.
+
+
+0.01     2014-06-22 (SHARYANTO)
+
+         - First release.
