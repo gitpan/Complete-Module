@@ -1,5 +1,10 @@
 Revision history for Complete-Module
 
+0.05    2014-12-24 (PERLANCAR)
+
+	- Follow convention of Complete 0.06.
+
+
 0.04     2014-08-16 (SHARYANTO) - Happy 19th CPAN Day!
 
          - Add option: ns_prefix.

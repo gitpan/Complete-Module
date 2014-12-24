@@ -1,12 +1,13 @@
 package Complete::Module;
 
-our $DATE = '2014-08-16'; # DATE
-our $VERSION = '0.04'; # VERSION
+our $DATE = '2014-12-24'; # DATE
+our $VERSION = '0.05'; # VERSION
 
 use 5.010001;
 use strict;
 use warnings;
 
+use Complete;
 use Cwd;
 use List::MoreUtils qw(uniq);
 
@@ -95,7 +96,7 @@ sub complete_module {
     my %args = @_;
 
     my $word = $args{word} // '';
-    my $ci   = $args{ci};
+    my $ci   = $args{ci} // $Complete::OPT_CI;
     my $sep  = $args{separator} // '::';
 
     my $find_pm      = $args{find_pm}     // 1;
@@ -215,7 +216,7 @@ sub complete_module {
 }
 
 1;
-#ABSTRACT: Complete Perl module names
+# ABSTRACT: Complete Perl module names
 
 __END__
 
@@ -229,7 +230,7 @@ Complete::Module - Complete Perl module names
 
 =head1 VERSION
 
-This document describes version 0.04 of Complete::Module (from Perl distribution Complete-Module), released on 2014-08-16.
+This document describes version 0.05 of Complete::Module (from Perl distribution Complete-Module), released on 2014-12-24.
 
 =head1 SYNOPSIS
 
@@ -308,7 +309,7 @@ Please visit the project's homepage at L<https://metacpan.org/release/Complete-M
 
 =head1 SOURCE
 
-Source repository is at L<https://github.com/sharyanto/perl-Complete-Module>.
+Source repository is at L<https://github.com/perlancar/perl-Complete-Module>.
 
 =head1 BUGS
 
@@ -320,11 +321,11 @@ feature.
 
 =head1 AUTHOR
 
-Steven Haryanto <stevenharyanto@gmail.com>
+perlancar <perlancar@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2014 by Steven Haryanto.
+This software is copyright (c) 2014 by perlancar@cpan.org.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

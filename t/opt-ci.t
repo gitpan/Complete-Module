@@ -4,6 +4,7 @@ use 5.010;
 use strict;
 use warnings;
 
+use Complete;
 use Complete::Module qw(complete_module);
 use File::chdir;
 use File::Slurp::Tiny qw(write_file);
@@ -34,6 +35,7 @@ unless (fs_is_cs($dir)) {
 
 {
     local @INC = ($dir);
+    local $Complete::OPT_CI = 0;
     is_deeply(complete_module(word=>"f"), [sort qw/foo::/]);
     is_deeply(complete_module(word=>"f", ci=>1), [sort qw/Foo:: foo::/]);
     is_deeply(complete_module(word=>"foo::bar", ci=>1),
