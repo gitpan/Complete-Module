@@ -51,7 +51,7 @@ my $dir = tempdir(CLEANUP => 1);
     };
 
     subtest "opt: exp_im_path" => sub {
-        test_complete(args=>{word=>"B::M", map_case=>1},
+        test_complete(args=>{word=>"B::M", exp_im_path=>1},
                       result=>[qw/Bar::M1:: Bar::M2:: Bar::Mod3/]);
     };
     subtest "opt: find_pm" => sub {

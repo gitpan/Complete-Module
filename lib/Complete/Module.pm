@@ -1,7 +1,7 @@
 package Complete::Module;
 
 our $DATE = '2014-12-25'; # DATE
-our $VERSION = '0.06'; # VERSION
+our $VERSION = '0.07'; # VERSION
 
 use 5.010001;
 use strict;
@@ -150,7 +150,7 @@ Complete::Module - Complete Perl module names
 
 =head1 VERSION
 
-This document describes version 0.06 of Complete::Module (from Perl distribution Complete-Module), released on 2014-12-25.
+This document describes version 0.07 of Complete::Module (from Perl distribution Complete-Module), released on 2014-12-25.
 
 =head1 SYNOPSIS
 

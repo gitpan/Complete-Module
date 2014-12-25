@@ -22,7 +22,7 @@ meta-spec:
 name: Complete-Module
 requires:
   Complete: '0.06'
-  Complete::Path: '0'
+  Complete::Path: '0.02'
   List::MoreUtils: '0'
   Rinci: v1.1.0
   perl: '5.010001'
@@ -30,7 +30,7 @@ resources:
   bugtracker: https://rt.cpan.org/Public/Dist/Display.html?Name=Complete-Module
   homepage: https://metacpan.org/release/Complete-Module
   repository: git://github.com/sharyanto/perl-Complete-Module.git
-version: '0.06'
+version: '0.07'
 x_Dist_Zilla:
   perl:
     version: '5.018001'
