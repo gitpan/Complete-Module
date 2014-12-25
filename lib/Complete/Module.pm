@@ -1,7 +1,7 @@
 package Complete::Module;
 
-our $DATE = '2014-12-24'; # DATE
-our $VERSION = '0.05'; # VERSION
+our $DATE = '2014-12-25'; # DATE
+our $VERSION = '0.06'; # VERSION
 
 use 5.010001;
 use strict;
@@ -45,15 +45,11 @@ _
             summary => 'Whether to do case-insensitive search',
             schema  => 'bool*',
         },
-        separator => {
-            schema  => 'str*',
-            default => '::',
-            description => <<'_',
-
-Instead of the default `::`, output separator as this character. Colon is
-problematic e.g. in bash when doing tab completion.
-
-_
+        map_case => {
+            schema => 'bool',
+        },
+        exp_im_path => {
+            schema => 'bool',
         },
         find_pm => {
             summary => 'Whether to find .pm files',
@@ -92,127 +88,51 @@ _
     result_naked => 1,
 };
 sub complete_module {
-    #say "D:complete_module called ".join(", ", @_);
+    require Complete::Path;
+
     my %args = @_;
 
     my $word = $args{word} // '';
-    my $ci   = $args{ci} // $Complete::OPT_CI;
+    my $ci          = $args{ci} // $Complete::OPT_CI;
+    my $map_case    = $args{map_case} // $Complete::OPT_MAP_CASE;
+    my $exp_im_path = $args{exp_im_path} // $Complete::OPT_EXP_IM_PATH;
     my $sep  = $args{separator} // '::';
+    my $ns_prefix = $args{ns_prefix} // '';
+    $ns_prefix =~ s/(::)+\z//;
 
     my $find_pm      = $args{find_pm}     // 1;
     my $find_pmc     = $args{find_pmc}    // 1;
     my $find_pod     = $args{find_pod}    // 1;
     my $find_prefix  = $args{find_prefix} // 1;
 
-    my $sep_re = qr!(?:::|/|\Q$sep\E)!;
-
-    my $ns_prefix = $args{ns_prefix} // '';
-    if (length $ns_prefix) {
-        $ns_prefix =~ s!$sep_re\z!!;
-        $ns_prefix =~ s!$sep_re!$sep!g;
-        $word = "$ns_prefix$sep$word";
-    }
-
-    my ($prefix0, $pm);
-    if ($word =~ m!(.+)$sep_re(.*)!) {
-        $word = $2;
-        $prefix0 = [split($sep_re, $1)];
-    } else {
-        $prefix0 = [];
-        $pm = $word;
-    }
-    my $prefix = join "/", @$prefix0;
-    #say "D:prefix0=[".join(",",@$prefix0)."] prefix=$prefix word=$word";
-
-    my $word_re = $ci ? qr/\A\Q$word/i : qr/\A\Q$word/;
-
-    my @dirs;
-    if ($ci && @$prefix0) {
-        # for case-insensitive search: for each prefix we'll need to handle the
-        # possibility of more than one matches (e.g. foo/ and Foo/ on a
-        # case-sensitive filesystem)
-        my $cwd = getcwd();
-        my $j;
-        for my $dir (@INC) {
-            #say "D:dir=$dir";
-            next if ref($dir);
-            chdir $cwd if $j++;
-            chdir $dir or next;
-            my $dig;
-            local @_built_prefix;
-            $dig = sub {
-                my $i = shift;
-                #say "D:  i=$i, built_prefix=".join("/", @_built_prefix).", cwd=".getcwd();
-                opendir my($dh), "." or return;
-                for my $e (readdir $dh) {
-                    next if $e eq '.' || $e eq '..';
-                    next unless (-d $e) && lc($e) eq lc($prefix0->[$i]);
-                    local $_built_prefix[$i] = $e;
-                    if ($i == @$prefix0-1) {
-                        push @dirs, [
-                            $dir . (@_built_prefix ? "/" : "") .
-                                join("/", @_built_prefix),
-                            join($sep, @_built_prefix) .
-                                (@_built_prefix ? $sep:''),
-                        ];
-                    } else {
-                        chdir $e or return;
-                        $dig->($i+1);
-                        chdir "..";
-                    }
+    Complete::Path::complete_path(
+        word => $word,
+        ci => $ci, map_case => $map_case, exp_im_path => $exp_im_path,
+        starting_path => $ns_prefix,
+        list_func => sub {
+            my ($path, $intdir, $isint) = @_;
+            (my $fspath = $path) =~ s!::!/!g;
+            my @res;
+            for my $inc (@INC) {
+                next if ref($inc);
+                my $dir = $inc . (length($fspath) ? "/$fspath" : "");
+                opendir my($dh), $dir or next;
+                for (readdir $dh) {
+                    next if $_ eq '.' || $_ eq '..';
+                    next unless /\A\w+(\.\w+)?\z/;
+                    my $is_dir = (-d "$dir/$_");
+                    next if $isint && !$is_dir;
+                    push @res, "$_\::" if $is_dir && ($isint || $find_prefix);
+                    push @res, $1 if /(.+)\.pm\z/  && $find_pm;
+                    push @res, $1 if /(.+)\.pmc\z/ && $find_pmc;
+                    push @res, $1 if /(.+)\.pod\z/ && $find_pod;
                 }
-            };
-            $dig->(0);
-        }
-        chdir $cwd;
-    } else {
-        for my $dir0 (@INC) {
-            next if ref($dir0);
-            my $dir = $dir0 . (length($prefix) ? "/$prefix" : "");
-            next unless -d $dir;
-            push @dirs, [$dir, join($sep, @$prefix0) . (@$prefix0 ? $sep:'')];
-        }
-    }
-
-    my @res;
-    for my $e (@dirs) {
-        my ($dir, $resprefix) = @$e;
-        next if ref($dir);
-        opendir my($dh), $dir or next;
-        for my $e (readdir $dh) {
-            #say "D:$dir <$e>";
-            next if $e =~ /\A\.\.?/;
-            my $is_dir = (-d "$dir/$e"); # stat once
-            #say "D:  <$e> is dir" if $is_dir;
-            if ($find_prefix && $is_dir) {
-                #say "D:  <$e> $word_re? ".($e =~ $word_re ? 1:0);
-                push @res, $resprefix . $e . $sep if $e =~ $word_re;
             }
-            my $f;
-            if ($find_pm && $e =~ qr/(.+)\.pm\z/) {
-                $f = $1;
-                push @res, $resprefix . $f if $f =~ $word_re;
-            }
-            if ($find_pmc && $e =~ qr/(.+)\.pmc\z/) {
-                $f = $1;
-                push @res, $resprefix . $f if $f =~ $word_re;
-            }
-            if ($find_pod && $e =~ qr/(.+)\.pod\z/) {
-                $f = $1;
-                push @res, $resprefix . $f if $f =~ $word_re;
-            }
-        }
-
-    }
-
-    if (length $ns_prefix) {
-        for (@res) {
-            substr($_, 0, length($ns_prefix)+length($sep)) = '';
-        }
-    }
-
-    #say "D:res=".join(", ", @res);
-    [sort(uniq(@res))];
+            [sort(uniq(@res))];
+        },
+        path_sep => '::',
+        is_dir_func => sub { -d $_[0] },
+    );
 }
 
 1;
@@ -230,7 +150,7 @@ Complete::Module - Complete Perl module names
 
 =head1 VERSION
 
-This document describes version 0.05 of Complete::Module (from Perl distribution Complete-Module), released on 2014-12-24.
+This document describes version 0.06 of Complete::Module (from Perl distribution Complete-Module), released on 2014-12-25.
 
 =head1 SYNOPSIS
 
@@ -264,6 +184,8 @@ Arguments ('*' denotes required arguments):
 
 Whether to do case-insensitive search.
 
+=item * B<exp_im_path> => I<bool>
+
 =item * B<find_pm> => I<bool> (default: 1)
 
 Whether to find .pm files.
@@ -280,6 +202,8 @@ Whether to find .pod files.
 
 Whether to find module prefixes.
 
+=item * B<map_case> => I<bool>
+
 =item * B<ns_prefix> => I<str>
 
 Namespace prefix.
@@ -289,11 +213,6 @@ This is useful if you want to complete module under a specific namespace
 C<Dist::Zilla::Plugin> (or C<Dist::Zilla::Plugin::>) and word is C<F>, you can get
 C<['FakeRelease', 'FileFinder::', 'FinderCode']> (those are modules under the
 C<Dist::Zilla::Plugin::> namespace).
-
-=item * B<separator> => I<str> (default: "::")
-
-Instead of the default C<::>, output separator as this character. Colon is
-problematic e.g. in bash when doing tab completion.
 
 =item * B<word>* => I<str>
 
@@ -309,7 +228,7 @@ Please visit the project's homepage at L<https://metacpan.org/release/Complete-M
 
 =head1 SOURCE
 
-Source repository is at L<https://github.com/perlancar/perl-Complete-Module>.
+Source repository is at L<https://github.com/sharyanto/perl-Complete-Module>.
 
 =head1 BUGS
 

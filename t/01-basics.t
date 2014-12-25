@@ -4,13 +4,12 @@ use 5.010;
 use strict;
 use warnings;
 
-use Complete::Module qw(complete_module);
+use FindBin '$Bin';
+use lib $Bin;
+require "testlib.pl";
+
 use File::chdir;
-use File::Slurp::Tiny qw(write_file);
-use File::Temp qw(tempdir);
 use Test::More 0.98;
-use mro; # force use, before we empty @INC
-use Data::Dumper; # force use, before we empty @INC, for explain()
 
 my $dir = tempdir(CLEANUP => 1);
 {
@@ -35,45 +34,43 @@ my $dir = tempdir(CLEANUP => 1);
 
 {
     local @INC = ($dir);
-    is_deeply(complete_module(word=>""), [qw/Bar:: Baz Foo Foo:: Type::/]);
-    is_deeply(complete_module(word=>"::"), [qw//]);
-    is_deeply(complete_module(word=>"c"), [qw//]);
-    is_deeply(complete_module(word=>"Foo"), [qw/Foo Foo::/]);
-    is_deeply(complete_module(word=>"Bar"), [qw/Bar::/]);
-    is_deeply(complete_module(word=>"Bar::"),
-              [qw/Bar::M1:: Bar::M2:: Bar::Mod3/]);
-    is_deeply(complete_module(word=>"Bar::Mod3"), [qw/Bar::Mod3/]);
-    is_deeply(complete_module(word=>"Bar::Mod3::"), [qw//]);
-    is_deeply(complete_module(word=>"Bar::c"), [qw//]);
-
-    subtest "opt: separator" => sub {
-        is_deeply(complete_module(word=>"", separator=>'.'),
-                  [qw/Bar. Baz Foo Foo. Type./]);
-        is_deeply(complete_module(word=>"Bar::Mod3", separator=>'.'),
-                  [qw/Bar.Mod3/]);
-        is_deeply(complete_module(word=>"Bar.Mod3", separator=>'.'),
-                  [qw/Bar.Mod3/]);
+    subtest "basics" => sub {
+        test_complete(args=>{word=>""},
+                      result=>[qw/Bar:: Baz Foo Foo:: Type::/]);
+        test_complete(args=>{word=>"c"}, result=>[qw//]);
+        test_complete(args=>{word=>"Foo"}, result=>[qw/Foo Foo::/]);
+        test_complete(args=>{word=>"Bar"}, result=>[qw/Bar::/]);
+        test_complete(args=>{word=>"Bar::"},
+                      result=>[qw/Bar::M1:: Bar::M2:: Bar::Mod3/]);
+        test_complete(args=>{word=>"Bar::Mod3"}, result=>[qw/Bar::Mod3/]);
+        test_complete(args=>{word=>"Bar::Mod3::"}, result=>[qw//]);
+        test_complete(args=>{word=>"Bar::c"}, result=>[qw//]);
+        test_complete(
+            args=>{word=>"Type::T"},
+            result=>[qw/Type::T1 Type::T2 Type::T3 Type::T4 Type::T5::/]);
     };
 
-    is_deeply(complete_module(word=>"Type::T"),
-              [qw/Type::T1 Type::T2 Type::T3 Type::T4 Type::T5::/]);
+    subtest "opt: exp_im_path" => sub {
+        test_complete(args=>{word=>"B::M", map_case=>1},
+                      result=>[qw/Bar::M1:: Bar::M2:: Bar::Mod3/]);
+    };
     subtest "opt: find_pm" => sub {
-        is_deeply(complete_module(word=>"Type::T", find_pm=>0),
-                  [qw/Type::T1 Type::T3 Type::T4 Type::T5::/])
-            or diag explain complete_module(word=>"Type::T", find_pm=>0);
+        test_complete(args=>{word=>"Type::T", find_pm=>0},
+                      result=>[qw/Type::T1 Type::T3 Type::T4 Type::T5::/]);
     };
     subtest "opt: find_pmc" => sub {
-        is_deeply(complete_module(word=>"Type::T", find_pmc=>0),
-                  [qw/Type::T1 Type::T2 Type::T4 Type::T5::/]);
+        test_complete(args=>{word=>"Type::T", find_pmc=>0},
+                      result=>[qw/Type::T1 Type::T2 Type::T4 Type::T5::/]);
     };
     subtest "opt: find_pod" => sub {
-        is_deeply(complete_module(word=>"Type::T", find_pod=>0),
-                  [qw/Type::T1 Type::T2 Type::T3 Type::T5::/]);
+        test_complete(args=>{word=>"Type::T", find_pod=>0},
+                      result=>[qw/Type::T1 Type::T2 Type::T3 Type::T5::/]);
     };
     subtest "opt: find_prefix" => sub {
-        is_deeply(complete_module(word=>"Type::T", find_prefix=>0),
-                  [qw/Type::T1 Type::T2 Type::T3 Type::T4/]);
+        test_complete(args=>{word=>"Type::T", find_prefix=>0},
+                      result=>[qw/Type::T1 Type::T2 Type::T3 Type::T4/]);
     };
+    # XXX opt map_case is mostly irrelevant
 }
 
 DONE_TESTING:

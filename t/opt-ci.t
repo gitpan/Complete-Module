@@ -4,15 +4,12 @@ use 5.010;
 use strict;
 use warnings;
 
-use Complete;
-use Complete::Module qw(complete_module);
+use FindBin '$Bin';
+use lib $Bin;
+require "testlib.pl";
+
 use File::chdir;
-use File::Slurp::Tiny qw(write_file);
-use File::Temp qw(tempdir);
-use Filesys::Cap qw(fs_is_cs);
 use Test::More 0.98;
-use mro; # force use, before we empty @INC
-use Data::Dumper; # force use, before we empty @INC, for explain()
 
 my $dir = tempdir(CLEANUP => 0);
 unless (fs_is_cs($dir)) {
@@ -34,14 +31,16 @@ unless (fs_is_cs($dir)) {
 }
 
 {
+    no warnings 'once';
     local @INC = ($dir);
     local $Complete::OPT_CI = 0;
-    is_deeply(complete_module(word=>"f"), [sort qw/foo::/]);
-    is_deeply(complete_module(word=>"f", ci=>1), [sort qw/Foo:: foo::/]);
-    is_deeply(complete_module(word=>"foo::bar", ci=>1),
-              [sort qw/Foo::Bar Foo::bar Foo::Bar:: Foo::bar:: foo::Bar:: foo::bar::/]);
-    is_deeply(complete_module(word=>"foo::bar::baz", ci=>1),
-              [sort qw/Foo::Bar::Baz/]);
+    test_complete(args=>{word=>"f"}, result=>[sort qw/foo::/]);
+    test_complete(args=>{word=>"f", ci=>1}, result=>[sort qw/Foo:: foo::/]);
+    test_complete(args=>{word=>"foo::bar", ci=>1},
+                  result=>[sort qw/Foo::Bar Foo::bar Foo::Bar:: Foo::bar::
+                                   foo::Bar:: foo::bar::/]);
+    test_complete(args=>{word=>"foo::bar::baz", ci=>1},
+                  result=>[sort qw/Foo::Bar::Baz/]);
 }
 
 DONE_TESTING:

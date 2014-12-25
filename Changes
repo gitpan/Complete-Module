@@ -1,5 +1,18 @@
 Revision history for Complete-Module
 
+0.06    2014-12-25 (PERLANCAR) - ♪ so this is xmas
+
+	- Use Complete::Path to avoid code duplication and gain features like
+          expand intermediate path (exp_im_path option) and map case (map_case
+          option).
+
+        [REMOVED FEATURES]
+
+        - Remove argument 'separator'. I think this is a misfeature, Perl
+          package names should always be separated by '::'. Convenience features
+          will be put in App::PMUtils.
+
+
 0.05    2014-12-24 (PERLANCAR)
 
 	- Follow convention of Complete 0.06.
