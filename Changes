@@ -1,5 +1,13 @@
 Revision history for Complete-Module
 
+0.08    2014-12-26 (PERLANCAR)
+
+	- No functional changes.
+
+	- Load B module during testing before emptying @INC, as it's
+	  required by new Test::Simple (1.301002+) [CT].
+
+
 0.07    2014-12-25 (PERLANCAR)
 
         - No functional changes.

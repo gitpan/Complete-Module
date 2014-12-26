@@ -1,7 +1,7 @@
 package Complete::Module;
 
-our $DATE = '2014-12-25'; # DATE
-our $VERSION = '0.07'; # VERSION
+our $DATE = '2014-12-26'; # DATE
+our $VERSION = '0.08'; # VERSION
 
 use 5.010001;
 use strict;
@@ -131,7 +131,7 @@ sub complete_module {
             [sort(uniq(@res))];
         },
         path_sep => '::',
-        is_dir_func => sub { -d $_[0] },
+        is_dir_func => sub { }, # not needed, we already suffix "dirs" with ::
     );
 }
 
@@ -150,7 +150,7 @@ Complete::Module - Complete Perl module names
 
 =head1 VERSION
 
-This document describes version 0.07 of Complete::Module (from Perl distribution Complete-Module), released on 2014-12-25.
+This document describes version 0.08 of Complete::Module (from Perl distribution Complete-Module), released on 2014-12-26.
 
 =head1 SYNOPSIS
 
@@ -228,7 +228,7 @@ Please visit the project's homepage at L<https://metacpan.org/release/Complete-M
 
 =head1 SOURCE
 
-Source repository is at L<https://github.com/sharyanto/perl-Complete-Module>.
+Source repository is at L<https://github.com/perlancar/perl-Complete-Module>.
 
 =head1 BUGS
 
