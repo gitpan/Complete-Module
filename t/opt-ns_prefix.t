@@ -25,7 +25,7 @@ my $dir = tempdir(CLEANUP => 0);
 }
 
 {
-    local @INC = ($dir);
+    local @INC = ($dir, @INC);
     test_complete(args=>{word=>"", ns_prefix=>"$prefix/Foo"},
                   result=>[sort +(
                       "Bar/",

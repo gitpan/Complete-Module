@@ -62,7 +62,7 @@
          "web" : "https://github.com/sharyanto/perl-Complete-Module"
       }
    },
-   "version" : "0.12",
+   "version" : "0.13",
    "x_Dist_Zilla" : {
       "perl" : {
          "version" : "5.018002"
