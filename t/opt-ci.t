@@ -34,8 +34,8 @@ unless (fs_is_cs($dir)) {
     no warnings 'once';
     local @INC = ($dir);
     local $Complete::OPT_CI = 0;
-    test_complete(args=>{word=>"f"}, result=>[sort qw/foo::/]);
-    test_complete(args=>{word=>"f", ci=>1}, result=>[sort qw/Foo:: foo::/]);
+    test_complete(args=>{word=>"f"}, result=>[sort qw(foo/)]);
+    test_complete(args=>{word=>"f", ci=>1}, result=>[sort qw(Foo/ foo/)]);
     test_complete(args=>{word=>"foo::bar", ci=>1},
                   result=>[sort qw/Foo::Bar Foo::bar Foo::Bar:: Foo::bar::
                                    foo::Bar:: foo::bar::/]);

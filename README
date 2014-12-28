@@ -1,18 +1,18 @@
 NAME
-    Complete::Module - Complete Perl module names
+    Complete::Module - Complete with installed Perl module names
 
 VERSION
-    This document describes version 0.08 of Complete::Module (from Perl
-    distribution Complete-Module), released on 2014-12-26.
+    This document describes version 0.09 of Complete::Module (from Perl
+    distribution Complete-Module), released on 2014-12-28.
 
 SYNOPSIS
      use Complete::Module qw(complete_module);
-     my $res = complete_module(word => 'Te');
-     # -> ['Template', 'Template::', 'Test', 'Test::', 'Text::']
+     my $res = complete_module(word => 'Text::A');
+     # -> ['Text::ANSI', 'Text::ANSITable', 'Text::ANSITable::', 'Text::Abbrev']
 
 FUNCTIONS
   complete_module(%args) -> any
-    Complete Perl module names.
+    Complete with installed Perl module names.
 
     For each directory in @INC (coderefs are ignored), find Perl modules and
     module prefixes which have "word" as prefix. So for example, given "Te"
@@ -24,7 +24,10 @@ FUNCTIONS
     "Module::List", but this function is geared towards shell tab
     completion. Compared to "Module::List", here are some differences: 1)
     list modules where prefix is incomplete; 2) interface slightly
-    different; 3) (currently) doesn't do recursing.
+    different; 3) (currently) doesn't do recursing; 4) contains conveniences
+    for completion, e.g. map casing, expand intermediate paths (see
+    "Complete" for more details on those features), autoselection of path
+    separator character, some shortcuts, and so on.
 
     Arguments ('*' denotes required arguments):
 
@@ -68,13 +71,39 @@ FUNCTIONS
 
      (any)
 
+SETTINGS
+  $Complete::Module::OPT_SHORTCUT_PREFIXES => hash
+    Shortcut prefixes. The default is:
+
+     {
+       dzb => "Dist/Zilla/PluginBundle/",
+       dzp => "Dist/Zilla/Plugin/",
+       pwb => "Pod/Weaver/PluginBundle/",
+       pwp => "Pod/Weaver/Plugin/",
+       pws => "Pod/Weaver/Section/",
+     }
+
+    If user types one of the keys, it will be replaced with the matching
+    value from this hash.
+
+ENVIRONMENT
+  "COMPLETE_MODULE_OPT_SHORTCUT_PREFIXES" => str
+    Can be used to set the default for
+    $Complete::Module::OPT_SHORTCUT_PREFIXES. It should be in the form of:
+
+     shortcut1=Value1;shortcut2=Value2;...
+
+    For example:
+
+     dzp=Dist/Zilla/Plugin/;pwp=Pod/Weaver/Plugin/
+
 HOMEPAGE
     Please visit the project's homepage at
     <https://metacpan.org/release/Complete-Module>.
 
 SOURCE
     Source repository is at
-    <https://github.com/perlancar/perl-Complete-Module>.
+    <https://github.com/sharyanto/perl-Complete-Module>.
 
 BUGS
     Please report any bugs or feature requests on the bugtracker website

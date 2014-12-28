@@ -36,10 +36,10 @@ my $dir = tempdir(CLEANUP => 1);
     local @INC = ($dir);
     subtest "basics" => sub {
         test_complete(args=>{word=>""},
-                      result=>[qw/Bar:: Baz Foo Foo:: Type::/]);
+                      result=>[qw(Bar/ Baz Foo Foo/ Type/)]);
         test_complete(args=>{word=>"c"}, result=>[qw//]);
-        test_complete(args=>{word=>"Foo"}, result=>[qw/Foo Foo::/]);
-        test_complete(args=>{word=>"Bar"}, result=>[qw/Bar::/]);
+        test_complete(args=>{word=>"Foo"}, result=>[qw(Foo Foo/)]);
+        test_complete(args=>{word=>"Bar"}, result=>[qw(Bar/)]);
         test_complete(args=>{word=>"Bar::"},
                       result=>[qw/Bar::M1:: Bar::M2:: Bar::Mod3/]);
         test_complete(args=>{word=>"Bar::Mod3"}, result=>[qw/Bar::Mod3/]);

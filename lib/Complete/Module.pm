@@ -1,14 +1,13 @@
 package Complete::Module;
 
-our $DATE = '2014-12-26'; # DATE
-our $VERSION = '0.08'; # VERSION
+our $DATE = '2014-12-28'; # DATE
+our $VERSION = '0.09'; # VERSION
 
 use 5.010001;
 use strict;
 use warnings;
 
 use Complete;
-use Cwd;
 use List::MoreUtils qw(uniq);
 
 our %SPEC;
@@ -16,11 +15,23 @@ require Exporter;
 our @ISA       = qw(Exporter);
 our @EXPORT_OK = qw(complete_module);
 
-our @_built_prefix;
+our $OPT_SHORTCUT_PREFIXES;
+if ($ENV{COMPLETE_MODULE_OPT_SHORTCUT_PREFIXES}) {
+    $OPT_SHORTCUT_PREFIXES =
+        { split /=|;/, $ENV{COMPLETE_MODULE_OPT_SHORTCUT_PREFIXES} };
+} else {
+    $OPT_SHORTCUT_PREFIXES = {
+        dzb => 'Dist/Zilla/PluginBundle/',
+        dzp => 'Dist/Zilla/Plugin/',
+        pwb => 'Pod/Weaver/PluginBundle/',
+        pwp => 'Pod/Weaver/Plugin/',
+        pws => 'Pod/Weaver/Section/',
+    };
+}
 
 $SPEC{complete_module} = {
     v => 1.1,
-    summary => 'Complete Perl module names',
+    summary => 'Complete with installed Perl module names',
     description => <<'_',
 
 For each directory in `@INC` (coderefs are ignored), find Perl modules and
@@ -32,7 +43,9 @@ This function has a bit of overlapping functionality with `Module::List`, but
 this function is geared towards shell tab completion. Compared to
 `Module::List`, here are some differences: 1) list modules where prefix is
 incomplete; 2) interface slightly different; 3) (currently) doesn't do
-recursing.
+recursing; 4) contains conveniences for completion, e.g. map casing, expand
+intermediate paths (see `Complete` for more details on those features),
+autoselection of path separator character, some shortcuts, and so on.
 
 _
     args => {
@@ -96,16 +109,41 @@ sub complete_module {
     my $ci          = $args{ci} // $Complete::OPT_CI;
     my $map_case    = $args{map_case} // $Complete::OPT_MAP_CASE;
     my $exp_im_path = $args{exp_im_path} // $Complete::OPT_EXP_IM_PATH;
-    my $sep  = $args{separator} // '::';
     my $ns_prefix = $args{ns_prefix} // '';
     $ns_prefix =~ s/(::)+\z//;
+
+    # convenience: allow Foo/Bar.{pm,pod,pmc}
+    $word =~ s/\.(pm|pmc|pod)\z//;
+
+    # convenience (and compromise): if word doesn't contain :: we use the
+    # "safer" separator /, but if already contains '::' we use '::'. (Can also
+    # use '.' if user uses that.) Using "::" in bash means user needs to use
+    # quote (' or ") to make completion behave as expected since : is by default
+    # a word break character in bash/readline.
+    my $sep = $word =~ /::/ ? '::' :
+        $word =~ /\./ ? '.' : '/';
+
+    # find shortcut prefixes
+    {
+        my $tmp = lc $word;
+        for (keys %$OPT_SHORTCUT_PREFIXES) {
+            if ($tmp =~ /\A\Q$_\E(?:(\Q$sep\E).*|\z)/) {
+                substr($word, 0, length($_) + length($1 // '')) =
+                    $OPT_SHORTCUT_PREFIXES->{$_};
+                say "D:word=$word";
+                last;
+            }
+        }
+    }
+
+    $word =~ s!(::|/|\.)!::!g;
 
     my $find_pm      = $args{find_pm}     // 1;
     my $find_pmc     = $args{find_pmc}    // 1;
     my $find_pod     = $args{find_pod}    // 1;
     my $find_prefix  = $args{find_prefix} // 1;
 
-    Complete::Path::complete_path(
+    my $res = Complete::Path::complete_path(
         word => $word,
         ci => $ci, map_case => $map_case, exp_im_path => $exp_im_path,
         starting_path => $ns_prefix,
@@ -133,10 +171,14 @@ sub complete_module {
         path_sep => '::',
         is_dir_func => sub { }, # not needed, we already suffix "dirs" with ::
     );
+
+    for (@$res) { s/::/$sep/g }
+
+    $res;
 }
 
 1;
-# ABSTRACT: Complete Perl module names
+# ABSTRACT: Complete with installed Perl module names
 
 __END__
 
@@ -146,24 +188,24 @@ __END__
 
 =head1 NAME
 
-Complete::Module - Complete Perl module names
+Complete::Module - Complete with installed Perl module names
 
 =head1 VERSION
 
-This document describes version 0.08 of Complete::Module (from Perl distribution Complete-Module), released on 2014-12-26.
+This document describes version 0.09 of Complete::Module (from Perl distribution Complete-Module), released on 2014-12-28.
 
 =head1 SYNOPSIS
 
  use Complete::Module qw(complete_module);
- my $res = complete_module(word => 'Te');
- # -> ['Template', 'Template::', 'Test', 'Test::', 'Text::']
+ my $res = complete_module(word => 'Text::A');
+ # -> ['Text::ANSI', 'Text::ANSITable', 'Text::ANSITable::', 'Text::Abbrev']
 
 =head1 FUNCTIONS
 
 
 =head2 complete_module(%args) -> any
 
-Complete Perl module names.
+Complete with installed Perl module names.
 
 For each directory in C<@INC> (coderefs are ignored), find Perl modules and
 module prefixes which have C<word> as prefix. So for example, given C<Te> as
@@ -174,7 +216,9 @@ This function has a bit of overlapping functionality with C<Module::List>, but
 this function is geared towards shell tab completion. Compared to
 C<Module::List>, here are some differences: 1) list modules where prefix is
 incomplete; 2) interface slightly different; 3) (currently) doesn't do
-recursing.
+recursing; 4) contains conveniences for completion, e.g. map casing, expand
+intermediate paths (see C<Complete> for more details on those features),
+autoselection of path separator character, some shortcuts, and so on.
 
 Arguments ('*' denotes required arguments):
 
@@ -222,13 +266,43 @@ Return value:
 
  (any)
 
+=head1 SETTINGS
+
+=head2 C<$Complete::Module::OPT_SHORTCUT_PREFIXES> => hash
+
+Shortcut prefixes. The default is:
+
+ {
+   dzb => "Dist/Zilla/PluginBundle/",
+   dzp => "Dist/Zilla/Plugin/",
+   pwb => "Pod/Weaver/PluginBundle/",
+   pwp => "Pod/Weaver/Plugin/",
+   pws => "Pod/Weaver/Section/",
+ }
+
+If user types one of the keys, it will be replaced with the matching value from
+this hash.
+
+=head1 ENVIRONMENT
+
+=head2 C<COMPLETE_MODULE_OPT_SHORTCUT_PREFIXES> => str
+
+Can be used to set the default for C<$Complete::Module::OPT_SHORTCUT_PREFIXES>.
+It should be in the form of:
+
+ shortcut1=Value1;shortcut2=Value2;...
+
+For example:
+
+ dzp=Dist/Zilla/Plugin/;pwp=Pod/Weaver/Plugin/
+
 =head1 HOMEPAGE
 
 Please visit the project's homepage at L<https://metacpan.org/release/Complete-Module>.
 
 =head1 SOURCE
 
-Source repository is at L<https://github.com/perlancar/perl-Complete-Module>.
+Source repository is at L<https://github.com/sharyanto/perl-Complete-Module>.
 
 =head1 BUGS
 

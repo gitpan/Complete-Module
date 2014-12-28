@@ -1,5 +1,20 @@
 Revision history for Complete-Module
 
+0.09    2014-12-28 (PERLANCAR)
+
+        - Incorporate all the convenience features from App::PMUtils's
+          completion routine to this module (i.e. autoselect path separator,
+          shortcut prefixes), so all other modules that might need it can use us
+          instead of having to depend on App::PMUtils.
+
+        - Add setting: $OPT_SHORTCUT_PREFIXES.
+
+        [INCOMPATIBLE CHANGES]
+
+        - (Due to importing App::PMUtils' features) default path separator is
+          now '/', unless word has '::' or '.' in it.
+
+
 0.08    2014-12-26 (PERLANCAR)
 
 	- No functional changes.

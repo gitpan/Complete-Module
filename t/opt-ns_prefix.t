@@ -22,9 +22,9 @@ my $dir = tempdir(CLEANUP => 0);
 {
     local @INC = ($dir);
     test_complete(args=>{word=>"", ns_prefix=>"Foo"},
-                  result=>[sort qw/Bar::/]);
+                  result=>[sort qw(Bar/)]);
     test_complete(args=>{word=>"", ns_prefix=>"Foo::"},
-                  result=>[sort qw/Bar::/]);
+                  result=>[sort qw(Bar/)]);
     test_complete(args=>{word=>"", ns_prefix=>"Foo::Bar"},
                   result=>[sort qw/Baz/]);
     test_complete(args=>{word=>"", ns_prefix=>"Foo::Bar::"},
