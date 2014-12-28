@@ -1,11 +1,12 @@
 package Complete::Module;
 
 our $DATE = '2014-12-28'; # DATE
-our $VERSION = '0.09'; # VERSION
+our $VERSION = '0.10'; # VERSION
 
 use 5.010001;
 use strict;
 use warnings;
+#use Log::Any '$log';
 
 use Complete;
 use List::MoreUtils qw(uniq);
@@ -106,6 +107,9 @@ sub complete_module {
     my %args = @_;
 
     my $word = $args{word} // '';
+    #$log->tracef('[compmod] Entering complete_module(), word=<%s>', $word);
+    #$log->tracef('[compmod] args=%s', \%args);
+
     my $ci          = $args{ci} // $Complete::OPT_CI;
     my $map_case    = $args{map_case} // $Complete::OPT_MAP_CASE;
     my $exp_im_path = $args{exp_im_path} // $Complete::OPT_EXP_IM_PATH;
@@ -130,7 +134,6 @@ sub complete_module {
             if ($tmp =~ /\A\Q$_\E(?:(\Q$sep\E).*|\z)/) {
                 substr($word, 0, length($_) + length($1 // '')) =
                     $OPT_SHORTCUT_PREFIXES->{$_};
-                say "D:word=$word";
                 last;
             }
         }
@@ -143,6 +146,7 @@ sub complete_module {
     my $find_pod     = $args{find_pod}    // 1;
     my $find_prefix  = $args{find_prefix} // 1;
 
+    #$log->tracef('[compmod] invoking complete_path, word=<%s>', $word);
     my $res = Complete::Path::complete_path(
         word => $word,
         ci => $ci, map_case => $map_case, exp_im_path => $exp_im_path,
@@ -174,6 +178,7 @@ sub complete_module {
 
     for (@$res) { s/::/$sep/g }
 
+    #$log->tracef('[compmod] Leaving complete_module(), result=<%s>', $res);
     $res;
 }
 
@@ -192,7 +197,7 @@ Complete::Module - Complete with installed Perl module names
 
 =head1 VERSION
 
-This document describes version 0.09 of Complete::Module (from Perl distribution Complete-Module), released on 2014-12-28.
+This document describes version 0.10 of Complete::Module (from Perl distribution Complete-Module), released on 2014-12-28.
 
 =head1 SYNOPSIS
 

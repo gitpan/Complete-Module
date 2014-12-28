@@ -11,6 +11,7 @@ require "testlib.pl";
 use File::chdir;
 use Test::More 0.98;
 
+my $prefix = "Prefix" . int(rand()*900_000+100_000);
 my $dir = tempdir(CLEANUP => 0);
 unless (fs_is_cs($dir)) {
     plan skip_all => 'Filesystem is case-insensitive';
@@ -19,6 +20,10 @@ unless (fs_is_cs($dir)) {
 
 {
     local $CWD = $dir;
+
+    mkdir($prefix);
+    $CWD = $prefix;
+
     mkdir("Foo");
     mkdir("foo");
     write_file("Foo/bar.pm", "");
@@ -32,15 +37,30 @@ unless (fs_is_cs($dir)) {
 
 {
     no warnings 'once';
-    local @INC = ($dir);
+    local @INC = ($dir, @INC);
     local $Complete::OPT_CI = 0;
-    test_complete(args=>{word=>"f"}, result=>[sort qw(foo/)]);
-    test_complete(args=>{word=>"f", ci=>1}, result=>[sort qw(Foo/ foo/)]);
-    test_complete(args=>{word=>"foo::bar", ci=>1},
-                  result=>[sort qw/Foo::Bar Foo::bar Foo::Bar:: Foo::bar::
-                                   foo::Bar:: foo::bar::/]);
-    test_complete(args=>{word=>"foo::bar::baz", ci=>1},
-                  result=>[sort qw/Foo::Bar::Baz/]);
+    test_complete(args=>{word=>"$prefix/f"},
+                  result=>[sort +(
+                      "$prefix/foo/",
+                  )]);
+    test_complete(args=>{word=>"$prefix/f", ci=>1},
+                  result=>[sort +(
+                      "$prefix/Foo/",
+                      "$prefix/foo/",
+                  )]);
+    test_complete(args=>{word=>"$prefix/foo/bar", ci=>1},
+                  result=>[sort +(
+                      "$prefix/Foo/Bar",
+                      "$prefix/Foo/bar",
+                      "$prefix/Foo/Bar/",
+                      "$prefix/Foo/bar/",
+                      "$prefix/foo/Bar/",
+                      "$prefix/foo/bar/",
+                  )]);
+    test_complete(args=>{word=>"$prefix/foo/bar/baz", ci=>1},
+                  result=>[sort +(
+                      "$prefix/Foo/Bar/Baz",
+                  )]);
 }
 
 DONE_TESTING:

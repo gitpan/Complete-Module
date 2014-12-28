@@ -1,5 +1,13 @@
 Revision history for Complete-Module
 
+0.10    2014-12-28 (PERLANCAR)
+
+	- No functional changes.
+
+	- Adjust tests, don't empty @INC but instead use a unique prefix
+	  because emptying @INC will fail on some systems [CT, NANIS].
+
+
 0.09    2014-12-28 (PERLANCAR)
 
         - Incorporate all the convenience features from App::PMUtils's
