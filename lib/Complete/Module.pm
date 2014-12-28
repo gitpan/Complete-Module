@@ -1,7 +1,7 @@
 package Complete::Module;
 
 our $DATE = '2014-12-28'; # DATE
-our $VERSION = '0.11'; # VERSION
+our $VERSION = '0.12'; # VERSION
 
 use 5.010001;
 use strict;
@@ -178,6 +178,7 @@ sub complete_module {
 
     for (@$res) { s/::/$sep/g }
 
+    $res = { words=>$res, path_sep=>$sep };
     #$log->tracef('[compmod] Leaving complete_module(), result=<%s>', $res);
     $res;
 }
@@ -197,7 +198,7 @@ Complete::Module - Complete with installed Perl module names
 
 =head1 VERSION
 
-This document describes version 0.11 of Complete::Module (from Perl distribution Complete-Module), released on 2014-12-28.
+This document describes version 0.12 of Complete::Module (from Perl distribution Complete-Module), released on 2014-12-28.
 
 =head1 SYNOPSIS
 

@@ -24,6 +24,7 @@ my %WriteMakefileArgs = (
   "PREREQ_PM" => {
     "Complete" => "0.06",
     "Complete::Path" => "0.02",
+    "Complete::Util" => "0.15",
     "List::MoreUtils" => 0,
     "Rinci" => "1.1.0"
   },
@@ -36,7 +37,7 @@ my %WriteMakefileArgs = (
     "IPC::Open3" => 0,
     "Test::More" => "0.98"
   },
-  "VERSION" => "0.11",
+  "VERSION" => "0.12",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -46,6 +47,7 @@ my %WriteMakefileArgs = (
 my %FallbackPrereqs = (
   "Complete" => "0.06",
   "Complete::Path" => "0.02",
+  "Complete::Util" => "0.15",
   "ExtUtils::MakeMaker" => 0,
   "File::Slurp::Tiny" => 0,
   "File::Spec" => 0,
