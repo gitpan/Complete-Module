@@ -9,12 +9,6 @@ use File::Slurp::Tiny qw(write_file);
 use File::Temp qw(tempdir);
 use Filesys::Cap qw(fs_is_cs);
 use Test::More 0.98;
-use Test::More 0.98;
-
-# force load these first as these are required during test, before we empty @INC
-use B; # new Test::Simple 1.301+ requires this
-use Data::Dumper;
-use mro;
 
 sub test_complete {
     my %args = @_;

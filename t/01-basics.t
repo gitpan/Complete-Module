@@ -89,6 +89,7 @@ my $dir = tempdir(CLEANUP => 1);
     };
 
     subtest "shortcut prefixes" => sub {
+        no warnings 'once';
         local $Complete::Module::OPT_SHORTCUT_PREFIXES = {
             'abc' => "$prefix/Bar/",
         };

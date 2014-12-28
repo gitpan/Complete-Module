@@ -2,7 +2,7 @@ NAME
     Complete::Module - Complete with installed Perl module names
 
 VERSION
-    This document describes version 0.10 of Complete::Module (from Perl
+    This document describes version 0.11 of Complete::Module (from Perl
     distribution Complete-Module), released on 2014-12-28.
 
 SYNOPSIS
